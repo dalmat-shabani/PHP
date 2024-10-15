@@ -12,10 +12,16 @@
 //echo $x / $y;
 
 //string
-$a = 'Digital School';
+$a = 'Digital';
 $b = 'School';
 
 $c = $a.$b;
 echo "$c";
+
+//String functions
+
+$the_string = 'Digital School';
+
+echo strlen(string: $the_string)
 
 ?>
