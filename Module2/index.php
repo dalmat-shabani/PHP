@@ -16,12 +16,15 @@ $a = 'Digital';
 $b = 'School';
 
 $c = $a.$b;
-echo "$c";
+//echo "$c";
 
 //String functions
 
 $the_string = 'Digital School';
 
-echo strlen(string: $the_string)
+echo strlen( "$the_string \n");
 
+$programming = 'Programming is not cool';
+
+echo str_replace("not","very",$programming);
 ?>
