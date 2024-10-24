@@ -1,7 +1,7 @@
 <?php
-    phpinfo();
+   phpinfo();
 
-    $x = "Hello";
+ /*   $x = "Hello";
     print_r($x);
 
     $x = 5;
@@ -53,8 +53,56 @@
     function localVariable(){
         global $x;
         $y = 10; //local variable
-        echo "$x <br>";
-        echo "$y <br>";
+        echo $y;
+        echo $x;
     }
     localVariable();
+   
+
+    $x = 5;
+    $y = 10;
+    function sum(){
+        global $x,$y;
+
+        $y = $x + $y;
+    }
+    sum();
+    echo $y;
+ 
+
+ function callCounter(){
+    static $count = 0;
+    $count++;
+    echo "The value of count variable is $count <br>";
+ }
+ callCounter();
+ callCounter();
+
+
+$sports = array('Football', 'Basketball', 'Handball', 'Voleyball');
+$len = count($sports);
+//echo count($sports); //[0],end
+for($i = 0; $i <$len; $i++){
+    echo $sports[$i], "<br>";
+}
+
+$sport = array('Football','Basketball','Handball','Voleyball','Golf');
+array_push($sport, "Golf");
+var_dump($sport);
+
+
+$sport = array('Football','Basketball','Handball','Voleyball','Golf');
+array_pop($sport);
+var_dump($sport);
+
+
+$sport = array('Football', 'Basketball', 'Handball', 'Volleyball');
+array_unshift($sport,'Tenis');
+var_dump($sport); 
+*/
+
+$sport = array('Football', 'Basketball', 'Handball', 'Volleyball');
+array_shift($sport);
+var_dump($sport) ;
+
 ?> 
