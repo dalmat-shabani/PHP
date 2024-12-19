@@ -1,3 +1,64 @@
+<?php
+require_once "config.php";
+session_start();
+
+if(!isset($_SESSION['admin_logged'])){
+    header("Location: login.php");
+    exit;
+}
+
+if(!isset($_GET['id']) || empty($_GET['id'])){
+    header("Location: admin.php");
+    exit;
+}
+
+$id = intval($_GET['id']);
+$error = "";
+$success = "";
+
+
+//fetch user details
+$sql = "SELECT * FROM users WHERE id = $id";
+$result = $conn->query($sql);
+
+if($result->num_rows == 1){
+    $user = $result->fetch_assoc();
+}else{
+    header("location: admin.php");
+    exit();
+}
+
+
+//handle form submmisions to update user data
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+
+    if(empty($username) || empty($email)){
+        $error = "All fields are required.";
+    }else{
+        $update_sql = "UPDATE users SET username = '$username', email = '$email' WHERE id = 'id'";
+        if($conn->query($update_sql)){
+            $success = "User updated successfully!";
+            //refresh the user data
+            $user['username'] = $username
+            $users["email"] = $email;
+        }else{
+            $error = "Error updatig user: ".$conn->error();
+        }
+    }
+
+}
+
+?>
+
+
+
+
+
+
+
+
 <?php require_once("header.php"); ?>
 <!DOCTYPE html>
 <html lang="en">
