@@ -1,14 +1,14 @@
 <?php
-include 'db.php';
+include 'config.php';
 session_start();
 
-// Only allow admin access
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
 
-// Fetch total users & events
+
 $totalUsers = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()['count'];
 $totalEvents = $conn->query("SELECT COUNT(*) AS count FROM events")->fetch_assoc()['count'];
 ?>
