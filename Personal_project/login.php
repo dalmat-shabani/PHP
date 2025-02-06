@@ -3,28 +3,27 @@ session_start();
 include 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get the form input
     $email = $_POST['email'];
-    $password = MD5($_POST['password']); // MD5 for hashed password
+    $password = MD5($_POST['password']); 
 
-    // Check user in the database
+   
     $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Set session variables for login
+        
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['role'] = $user['role'];
 
-        // Redirect based on user role
+       
         if ($user['role'] === 'admin') {
-            header("Location: index.php");  // Redirect to Admin Dashboard
+            header("Location: index.php");  
             exit();
         } else {
-            header("Location: dashboard.php");  // Redirect to User Dashboard
+            header("Location: dashboard.php");  
             exit();
         }
     } else {
@@ -41,9 +40,9 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <!-- Bootstrap 5 CSS -->
+   
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Optional: You can also use your own custom CSS here -->
+
     <style>
         body {
             background-color: #f4f7f6;
@@ -83,7 +82,7 @@ $conn->close();
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS -->
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
