@@ -1,78 +1,75 @@
 <?php
+include_once 'config.php';
 session_start();
-include 'config.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
+$user_name = $_SESSION['user_name'];
 
-$sql = "SELECT * FROM events WHERE available_slots > 0";
-$events = $conn->query($sql);
+$events = $conn->query("SELECT * FROM events ORDER BY event_date ASC");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['book_event'])) {
-    $event_id = $_POST['event_id'];
-
-    $sql = "SELECT * FROM events WHERE id = '$event_id'";
-    $event = $conn->query($sql)->fetch_assoc();
-
-    if ($event['available_slots'] > 0) {
-        $sql = "INSERT INTO bookings (user_id, event_id) VALUES ('$user_id', '$event_id')";
-        if ($conn->query($sql) === TRUE) {
-            $update_slots = $event['available_slots'] - 1;
-            $update_sql = "UPDATE events SET available_slots = '$update_slots' WHERE id = '$event_id'";
-            $conn->query($update_sql);
-            $success_message = "Event booked successfully!";
-        } else {
-            $error_message = "Error booking event: " . $conn->error;
-        }
-    } else {
-        $error_message = "No available slots for this event.";
-    }
-}
-
-$conn->close();
+$bookings = $conn->query("
+    SELECT bookings.id AS booking_id, events.title, events.event_date, events.location
+    FROM bookings
+    JOIN events ON bookings.event_id = events.id
+    WHERE bookings.user_id = $user_id
+");
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-<div class="container mt-5">
-    <h2 class="text-center">User Dashboard</h2>
 
-    <?php if (isset($success_message)): ?>
-        <div class="alert alert-success"><?= $success_message; ?></div>
-    <?php elseif (isset($error_message)): ?>
-        <div class="alert alert-danger"><?= $error_message; ?></div>
-    <?php endif; ?>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Event Booking</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-    <div class="row">
-        <?php while ($event = $events->fetch_assoc()): ?>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="path/to/your/image.jpg" class="card-img-top" alt="<?= $event['title']; ?>"> <!-- Optional Image -->
-                    <div class="card-body">
-                        <h5 class="card-title"><?= $event['title']; ?></h5>
-                        <p class="card-text"><?= substr($event['description'], 0, 100); ?>...</p>
-                        <p class="card-text"><strong>Date:</strong> <?= $event['event_date']; ?></p>
-                        <p class="card-text"><strong>Location:</strong> <?= $event['location']; ?></p>
-                        <p class="card-text"><strong>Available Slots:</strong> <?= $event['available_slots']; ?></p>
-                        <form method="POST" action="dashboard.php">
-                            <input type="hidden" name="event_id" value="<?= $event['id']; ?>">
-                            <button type="submit" name="book_event" class="btn btn-primary">Book</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        <?php endwhile; ?>
+<div class="container mt-4">
+    <h2 class="text-center">Welcome, <?= htmlspecialchars($user_name) ?>!</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4>Upcoming Events</h4>
+            <ul class="list-group">
+                <?php while ($event = $events->fetch_assoc()): ?>
+                    <li class="list-group-item">
+                        <strong><?= htmlspecialchars($event['title']) ?></strong><br>
+                        <small><?= $event['event_date'] ?> | <?= htmlspecialchars($event['location']) ?></small>
+                        <a href="book_event.php?event_id=<?= $event['id'] ?>" class="btn btn-primary btn-sm float-end">Book</a>
+                    </li>
+                <?php endwhile; ?>
+            </ul>
+        </div>
+
+       
+        <div class="col-md-6">
+            <h4>My Bookings</h4>
+            <ul class="list-group">
+                <?php while ($booking = $bookings->fetch_assoc()): ?>
+                    <li class="list-group-item">
+                        <strong><?= htmlspecialchars($booking['title']) ?></strong><br>
+                        <small><?= $booking['event_date'] ?> | <?= htmlspecialchars($booking['location']) ?></small>
+                        <a href="cancel_booking.php?booking_id=<?= $booking['booking_id'] ?>" class="btn btn-danger btn-sm float-end">Cancel</a>
+                    </li>
+                <?php endwhile; ?>
+            </ul>
+        </div>
     </div>
 </div>
 
