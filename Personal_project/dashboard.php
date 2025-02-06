@@ -54,40 +54,25 @@ $conn->close();
         <div class="alert alert-danger"><?= $error_message; ?></div>
     <?php endif; ?>
 
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5>Available Events</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Available Slots</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($event = $events->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= $event['id']; ?></td>
-                            <td><?= $event['title']; ?></td>
-                            <td><?= $event['event_date']; ?></td>
-                            <td><?= $event['available_slots']; ?></td>
-                            <td>
-                                <form method="POST" action="dashboard.php">
-                                    <input type="hidden" name="event_id" value="<?= $event['id']; ?>">
-                                    <button type="submit" name="book_event" class="btn btn-primary">Book</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
+    <div class="row">
+        <?php while ($event = $events->fetch_assoc()): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="path/to/your/image.jpg" class="card-img-top" alt="<?= $event['title']; ?>"> <!-- Optional Image -->
+                    <div class="card-body">
+                        <h5 class="card-title"><?= $event['title']; ?></h5>
+                        <p class="card-text"><?= substr($event['description'], 0, 100); ?>...</p>
+                        <p class="card-text"><strong>Date:</strong> <?= $event['event_date']; ?></p>
+                        <p class="card-text"><strong>Location:</strong> <?= $event['location']; ?></p>
+                        <p class="card-text"><strong>Available Slots:</strong> <?= $event['available_slots']; ?></p>
+                        <form method="POST" action="dashboard.php">
+                            <input type="hidden" name="event_id" value="<?= $event['id']; ?>">
+                            <button type="submit" name="book_event" class="btn btn-primary">Book</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php endwhile; ?>
     </div>
 </div>
 
