@@ -14,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($checkEmail->num_rows > 0) {
         $error = "Email is already registered!";
     } else {
-        // Insert new user
+
         $sql = "INSERT INTO users (name, email, password, role) VALUES ('$name', '$email', '$password', '$role')";
         if ($conn->query($sql)) {
             $_SESSION['user_id'] = $conn->insert_id;
             $_SESSION['user_name'] = $name;
             $_SESSION['role'] = $role;
-            header("Location: dashboard.php");
+            header("Location: login.php?registered=true");
             exit();
         } else {
             $error = "Registration failed. Please try again.";

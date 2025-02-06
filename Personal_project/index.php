@@ -1,65 +1,67 @@
 <?php
+include 'db.php';
+session_start();
 
-include_once 'config.php';
+// Only allow admin access
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
 
+// Fetch total users & events
+$totalUsers = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()['count'];
+$totalEvents = $conn->query("SELECT COUNT(*) AS count FROM events")->fetch_assoc()['count'];
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Booking System</title>
-    <!-- Bootstrap CSS -->
+    <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Event Booking</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggle-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
+        <a class="navbar-brand" href="#">Admin Panel</a>
+        <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="register.php">Register</a></li>
+                <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Upcoming Events</h1>
-    <div class="row">
-        <?php
-        $result = $conn->query("SELECT * FROM events ORDER BY event_date ASC");
+<div class="container mt-4">
+    <h2>Welcome, Admin!</h2>
 
-        if ($result->num_rows > 0) {
-            while ($event = $result->fetch_assoc()) {
-                ?>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($event['title']) ?></h5>
-                            <p class="card-text"><?= htmlspecialchars($event['description']) ?></p>
-                            <p><strong>Date:</strong> <?= $event['event_date'] ?></p>
-                            <p><strong>Location:</strong> <?= htmlspecialchars($event['location']) ?></p>
-                            <p><strong>Available Slots:</strong> <?= $event['available_slots'] ?></p>
-                            <a href="book_event.php?event_id=<?= $event['id'] ?>" class="btn btn-primary w-100">Book Now</a>
-                        </div>
-                    </div>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h4>Total Users</h4>
+                    <p class="fs-3"><?= $totalUsers ?></p>
                 </div>
-                <?php
-            }
-        } else {
-            echo "<p class='text-center'>No upcoming events available.</p>";
-        }
-        ?>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h4>Total Events</h4>
+                    <p class="fs-3"><?= $totalEvents ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="manage_events.php" class="btn btn-primary">Manage Events</a>
+        <a href="manage_users.php" class="btn btn-secondary">Manage Users</a>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
