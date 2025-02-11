@@ -10,14 +10,26 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['user_name'];
 
-$events = $conn->query("SELECT * FROM events ORDER BY event_date ASC");
+// Fetch events
+$events = $conn->query("SELECT * FROM events WHERE available_slots > 0 ORDER BY event_date ASC");
 
+// Fetch user bookings
 $bookings = $conn->query("
-    SELECT bookings.id AS booking_id, events.title, events.event_date, events.location
+    SELECT bookings.id AS booking_id, events.id AS event_id, events.title, events.event_date, events.location
     FROM bookings
     JOIN events ON bookings.event_id = events.id
     WHERE bookings.user_id = $user_id
 ");
+
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    $error_message = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -43,6 +55,12 @@ $bookings = $conn->query("
 <div class="container mt-4">
     <h2 class="text-center">Welcome, <?= htmlspecialchars($user_name) ?>!</h2>
 
+    <?php if (isset($success_message)): ?>
+        <div class="alert alert-success"><?= $success_message; ?></div>
+    <?php elseif (isset($error_message)): ?>
+        <div class="alert alert-danger"><?= $error_message; ?></div>
+    <?php endif; ?>
+
     <div class="row mt-4">
         <div class="col-md-6">
             <h4>Upcoming Events</h4>
@@ -51,13 +69,15 @@ $bookings = $conn->query("
                     <li class="list-group-item">
                         <strong><?= htmlspecialchars($event['title']) ?></strong><br>
                         <small><?= $event['event_date'] ?> | <?= htmlspecialchars($event['location']) ?></small>
-                        <a href="book_event.php?event_id=<?= $event['id'] ?>" class="btn btn-primary btn-sm float-end">Book</a>
+                        <form method="POST" action="book_event.php" class="d-inline">
+                            <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                            <button type="submit" name="book_event" class="btn btn-primary btn-sm float-end">Book</button>
+                        </form>
                     </li>
                 <?php endwhile; ?>
             </ul>
         </div>
 
-       
         <div class="col-md-6">
             <h4>My Bookings</h4>
             <ul class="list-group">
