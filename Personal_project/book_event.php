@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['event_id'])) {
     $user_id = $_SESSION['user_id'];
     $event_id = intval($_POST['event_id']);
 
-    // Check if user already booked this event
+    
     $check_booking = $conn->prepare("SELECT id FROM bookings WHERE user_id = ? AND event_id = ?");
     $check_booking->bind_param("ii", $user_id, $event_id);
     $check_booking->execute();
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['event_id'])) {
     if ($result->num_rows > 0) {
         $_SESSION['error_message'] = "You have already booked this event.";
     } else {
-        // Check event availability
+        
         $get_event = $conn->prepare("SELECT available_slots FROM events WHERE id = ?");
         $get_event->bind_param("i", $event_id);
         $get_event->execute();
@@ -28,12 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['event_id'])) {
         $event = $event_result->fetch_assoc();
 
         if ($event && $event['available_slots'] > 0) {
-            // Insert booking
+        
             $insert_booking = $conn->prepare("INSERT INTO bookings (user_id, event_id) VALUES (?, ?)");
             $insert_booking->bind_param("ii", $user_id, $event_id);
 
             if ($insert_booking->execute()) {
-                // Reduce available slots
+                
                 $update_slots = $conn->prepare("UPDATE events SET available_slots = available_slots - 1 WHERE id = ?");
                 $update_slots->bind_param("i", $event_id);
                 $update_slots->execute();

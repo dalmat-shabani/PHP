@@ -58,7 +58,6 @@ $totalEvents = $conn->query("SELECT COUNT(*) AS count FROM events")->fetch_assoc
 
     <div class="mt-4">
         <a href="manage_events.php" class="btn btn-primary">Manage Events</a>
-        <a href="manage_users.php" class="btn btn-secondary">Manage Users</a>
     </div>
 </div>
 

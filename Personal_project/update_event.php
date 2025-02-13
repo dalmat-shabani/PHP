@@ -30,7 +30,7 @@ if (!$event) {
 }
 
 // Process form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_event'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
     $event_date = $_POST['event_date'];
@@ -57,18 +57,15 @@ $conn->close();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Event</title>
+    <title>Update Event</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 <div class="container mt-5">
-    <h2 class="text-center">Edit Event</h2>
+    <h2 class="text-center">Update Event</h2>
 
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
     <?php endif; ?>
 
     <form method="POST">
@@ -92,7 +89,7 @@ $conn->close();
             <label for="available_slots" class="form-label">Available Slots</label>
             <input type="number" name="available_slots" class="form-control" value="<?= $event['available_slots']; ?>" required>
         </div>
-        <button type="submit" name="update_event" class="btn btn-success w-100">Update Event</button>
+        <button type="submit" class="btn btn-success w-100">Update Event</button>
         <a href="index.php" class="btn btn-secondary w-100 mt-2">Cancel</a>
     </form>
 </div>
