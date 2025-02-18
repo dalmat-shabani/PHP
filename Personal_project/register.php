@@ -3,20 +3,33 @@ session_start();
 include 'config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);  
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = 'user';
 
-    $stmt = $conn->prepare("INSERT INTO users (name, password, role) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $name, $password, $role);
+    
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if ($stmt->execute()) {
-        $_SESSION['success'] = "Registration successful! You can now log in.";
-        header("Location: login.php");
-        exit();
+    if ($result->num_rows > 0) {
+        
+        $error_message = "This email is already registered. Please use a different one.";
     } else {
-        $error_message = "Error: " . $conn->error;
+        
+        $stmt = $conn->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $email, $password, $role);
+
+        if ($stmt->execute()) {
+            $_SESSION['success'] = "Registration successful! You can now log in.";
+            header("Location: login.php");
+            exit();
+        } else {
+            $error_message = "Error: " . $conn->error;
+        }
     }
+
     $stmt->close();
 }
 $conn->close();
@@ -59,8 +72,8 @@ $conn->close();
                 <?php endif; ?>
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" id="name" required>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" id="email" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>

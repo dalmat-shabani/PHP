@@ -2,34 +2,44 @@
 session_start();
 include 'config.php';
 
+
+if (isset($_SESSION['user_id'])) {
+    header("Location: dashboard.php");  
+    exit();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);  
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE name = ?");
-    $stmt->bind_param("s", $name);
+   
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
+       
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_name'] = $user['name']; 
             $_SESSION['role'] = $user['role'];
 
+            
             if ($user['role'] == 'admin') {
-                header("Location: index.php"); // Admin dashboard
+                header("Location: index.php"); 
             } else {
-                header("Location: dashboard.php"); // User dashboard
+                header("Location: dashboard.php");  
             }
             exit();
         } else {
-            $error_message = "Invalid credentials.";
+            $error_message = "Incorrect password. Please try again.";
         }
     } else {
-        $error_message = "Invalid credentials.";
+        $error_message = "No account found with that email address.";
     }
+
     $stmt->close();
 }
 $conn->close();
@@ -72,8 +82,8 @@ $conn->close();
                 <?php endif; ?>
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" id="name" required>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" id="email" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>

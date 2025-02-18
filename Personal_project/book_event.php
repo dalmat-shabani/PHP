@@ -1,52 +1,41 @@
 <?php
-include_once 'config.php';
 session_start();
+include 'config.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
+$user_id = $_SESSION['user_id'];
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['event_id'])) {
-    $user_id = $_SESSION['user_id'];
-    $event_id = intval($_POST['event_id']);
+    $event_id = $_POST['event_id'];
 
     
-    $check_booking = $conn->prepare("SELECT id FROM bookings WHERE user_id = ? AND event_id = ?");
-    $check_booking->bind_param("ii", $user_id, $event_id);
-    $check_booking->execute();
-    $result = $check_booking->get_result();
+    $sql = "SELECT * FROM events WHERE id = '$event_id'";
+    $event = $conn->query($sql)->fetch_assoc();
 
-    if ($result->num_rows > 0) {
-        $_SESSION['error_message'] = "You have already booked this event.";
-    } else {
+    if ($event && $event['available_slots'] > 0) {
         
-        $get_event = $conn->prepare("SELECT available_slots FROM events WHERE id = ?");
-        $get_event->bind_param("i", $event_id);
-        $get_event->execute();
-        $event_result = $get_event->get_result();
-        $event = $event_result->fetch_assoc();
-
-        if ($event && $event['available_slots'] > 0) {
-        
-            $insert_booking = $conn->prepare("INSERT INTO bookings (user_id, event_id) VALUES (?, ?)");
-            $insert_booking->bind_param("ii", $user_id, $event_id);
-
-            if ($insert_booking->execute()) {
-                
-                $update_slots = $conn->prepare("UPDATE events SET available_slots = available_slots - 1 WHERE id = ?");
-                $update_slots->bind_param("i", $event_id);
-                $update_slots->execute();
-
-                $_SESSION['success_message'] = "Event booked successfully!";
-            } else {
-                $_SESSION['error_message'] = "Error booking event.";
-            }
+        $sql = "INSERT INTO bookings (user_id, event_id) VALUES ('$user_id', '$event_id')";
+        if ($conn->query($sql) === TRUE) {
+            
+            $update_slots = $event['available_slots'] - 1;
+            $update_sql = "UPDATE events SET available_slots = '$update_slots' WHERE id = '$event_id'";
+            $conn->query($update_sql);
+            
+            
+            header("Location: my_bookings.php");
+            exit();
         } else {
-            $_SESSION['error_message'] = "No available slots for this event.";
+            $error_message = "Error booking event: " . $conn->error;
         }
+    } else {
+        $error_message = "No available slots for this event.";
     }
 }
+
 
 header("Location: dashboard.php");
 exit();
